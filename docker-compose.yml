@@ -1,0 +1,33 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo12-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+
+#postgres database with persisting volume for data, so that when container is destroyed data is persisted
+  db:
+    image: arm32v7/postgres:latest
+    restart: unless-stopped
+    ports:
+      - "5432:5432/tcp"
+    volumes: 
+      - odoo12-db-data:/var/lib/postgresql/data/pgdata
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+volumes:
+  odoo12-web-data:
+  odoo12-db-data:
